@@ -452,43 +452,20 @@
       font-weight: var(--font-weight-subheading);
     }
 
-    /* ========== CATEGORY SWITCH WARNING ========== */
-    .category-warning {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 10px 14px;
-      margin-bottom: 14px;
-      background: #fff8e6;
-      border: 1px solid #f0d97a;
-      border-radius: 8px;
-      font-size: 13px;
-      color: #6b5900;
-    }
-
-    .category-warning__text {
-      flex: 1;
-    }
-
-    .category-warning__btn--cancel {
-      font-family: var(--font-body);
+    /* ========== CATEGORY CLEARED NOTICE ========== */
+    .category-cleared-notice {
       font-size: 12px;
-      font-weight: var(--font-weight-subheading);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      padding: 5px 14px;
-      border-radius: var(--button-border-radius);
-      cursor: pointer;
-      background: none;
-      border: 1px solid #d4b84a;
-      color: #6b5900;
-      transition: all 0.15s;
-      flex-shrink: 0;
+      color: rgba(0,0,0,0.4);
+      font-style: italic;
+      margin-bottom: 10px;
+      animation: noticeFade 3s ease forwards;
     }
 
-    .category-warning__btn--cancel:hover {
-      background: rgba(0,0,0,0.04);
+    @keyframes noticeFade {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      70% { opacity: 1; }
+      100% { opacity: 0; }
     }
 
     /* ========== ACTIVE FILTER PILLS ========== */
@@ -725,10 +702,9 @@
                 <!-- Gender -->
                 <div class="shoes-panel-section">
                   <div class="panel-section-label">Gender</div>
-                  <div class="facets__pill-group">
-                    <div class="facets__pill-label" onclick="togglePill(this)">Men's</div>
-                    <div class="facets__pill-label" onclick="togglePill(this)">Women's</div>
-                    <div class="facets__pill-label" onclick="togglePill(this)">Unisex</div>
+                  <div class="facets__pill-group" id="clothing-gender-pills">
+                    <div class="facets__pill-label" onclick="selectClothingGender(this, 'mens')">Men's</div>
+                    <div class="facets__pill-label" onclick="selectClothingGender(this, 'womens')">Women's</div>
                   </div>
                 </div>
 
@@ -875,7 +851,7 @@
       { brand: 'Stance', name: 'Run Crew Socks', price: 22, type: 'accessories', accessoryType: 'Socks' },
     ];
 
-    let state = { gender: null, selectedSizes: [], activePanel: null, activeCategory: null };
+    let state = { gender: null, selectedSizes: [], activePanel: null, activeCategory: null, clothingGender: null };
     const productCategories = ['shoes', 'clothing', 'accessories'];
     const categoryLabels = { shoes: 'Shoes', clothing: 'Clothing', accessories: 'Accessories' };
 
@@ -883,7 +859,9 @@
       if (category === 'shoes') {
         return state.gender !== null || state.selectedSizes.length > 0;
       }
-      // For clothing/accessories, check if any checkboxes/pills/sizes are active inside that panel
+      if (category === 'clothing') {
+        if (state.clothingGender !== null) return true;
+      }
       const panel = document.getElementById('panel-content-' + category);
       if (!panel) return false;
       return panel.querySelector('.checkbox.is-active, .facets__pill-label.is-active, .size-option.is-active') !== null;
@@ -900,6 +878,9 @@
         state.selectedSizes = [];
         document.getElementById('size-filter').style.display = 'none';
         document.getElementById('size-hint').style.display = 'block';
+      }
+      if (category === 'clothing') {
+        state.clothingGender = null;
       }
       if (state.activeCategory === category) {
         state.activeCategory = null;
@@ -926,7 +907,7 @@
 
     function removeNotice(panelName) {
       const panel = document.getElementById('panel-content-' + panelName);
-      const notice = panel ? panel.querySelector('.category-warning') : null;
+      const notice = panel ? panel.querySelector('.category-cleared-notice') : null;
       if (notice) notice.remove();
     }
 
@@ -935,12 +916,11 @@
       const panel = document.getElementById('panel-content-' + targetPanel);
       if (!panel) return;
       const notice = document.createElement('div');
-      notice.className = 'category-warning';
-      notice.innerHTML = `
-        <span class="category-warning__text"><strong>${categoryLabels[clearedCategory]}</strong> filters were cleared.</span>
-        <button type="button" class="category-warning__btn category-warning__btn--cancel" onclick="this.parentElement.remove()">Dismiss</button>
-      `;
+      notice.className = 'category-cleared-notice';
+      notice.textContent = `${categoryLabels[clearedCategory]} filters were cleared.`;
       panel.insertBefore(notice, panel.firstChild);
+      // Auto-remove after animation
+      notice.addEventListener('animationend', () => notice.remove());
     }
 
     function togglePanel(name) {
@@ -993,6 +973,7 @@
       const sizes = gender === 'mens' ? mensSizes : womensSizes;
       const availableSizes = new Set();
       products.forEach(p => {
+        if (p.type) return; // skip non-shoe products
         const productSizes = gender === 'mens' ? p.mensSizes : p.womensSizes;
         productSizes.forEach(s => availableSizes.add(s));
       });
@@ -1002,6 +983,21 @@
         return `<div class="size-option ${available ? '' : 'is-unavailable'}" onclick="toggleSize(this)" data-size="${s}">${s}</div>`;
       }).join('');
 
+      updateFilters();
+    }
+
+    function selectClothingGender(el, gender) {
+      clearConflictingCategories('clothing');
+      if (state.clothingGender === gender) {
+        state.clothingGender = null;
+        el.classList.remove('is-active');
+        updateFilters();
+        return;
+      }
+      document.querySelectorAll('#clothing-gender-pills .facets__pill-label').forEach(p => p.classList.remove('is-active'));
+      el.classList.add('is-active');
+      state.clothingGender = gender;
+      state.activeCategory = 'clothing';
       updateFilters();
     }
 
@@ -1069,8 +1065,10 @@
 
       // Filter products
       let filtered = [...products];
+      // Shoe filters
       if (state.gender) {
         filtered = filtered.filter(p => {
+          if (p.type) return false; // exclude non-shoe products when shoe gender is active
           if (state.gender === 'mens') return p.mensSizes.length > 0;
           return p.womensSizes.length > 0;
         });
@@ -1078,7 +1076,16 @@
       if (state.selectedSizes.length > 0) {
         filtered = filtered.filter(p => {
           const sizes = state.gender === 'mens' ? p.mensSizes : p.womensSizes;
-          return state.selectedSizes.some(s => sizes.includes(s));
+          return sizes && state.selectedSizes.some(s => sizes.includes(s));
+        });
+      }
+      // Clothing gender filter — Men's/Women's includes Unisex
+      if (state.clothingGender) {
+        filtered = filtered.filter(p => {
+          if (p.type !== 'clothing') return false;
+          if (state.clothingGender === 'mens') return p.clothingGender === "Men's" || p.clothingGender === "Unisex";
+          if (state.clothingGender === 'womens') return p.clothingGender === "Women's" || p.clothingGender === "Unisex";
+          return true;
         });
       }
 
@@ -1106,10 +1113,13 @@
     function clearAll() {
       state.gender = null;
       state.selectedSizes = [];
+      state.clothingGender = null;
+      state.activeCategory = null;
       document.querySelectorAll('.facets__pill-label').forEach(p => p.classList.remove('is-active'));
       document.querySelectorAll('.size-option').forEach(p => p.classList.remove('is-active'));
       document.querySelectorAll('.checkbox').forEach(p => p.classList.remove('is-active'));
       document.getElementById('size-filter').style.display = 'none';
+      document.getElementById('size-hint').style.display = 'block';
       updateFilters();
     }
 
