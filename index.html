@@ -230,6 +230,64 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    @keyframes panelFadeInRight {
+      from { opacity: 0; transform: translateX(-8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Shoes panel — expand to the right as a wide horizontal panel */
+    #panel-shoes .facets__panel-content {
+      top: 0;
+      left: 100%;
+      max-width: none;
+      width: max-content;
+      max-height: none;
+      margin-top: 0;
+      margin-left: 8px;
+      padding: var(--padding-lg);
+    }
+
+    #panel-shoes.is-open .facets__panel-content {
+      animation: panelFadeInRight var(--animation-speed) var(--animation-easing);
+    }
+
+    .shoes-panel-layout {
+      display: flex;
+      gap: 32px;
+    }
+
+    .shoes-panel-section {
+      min-width: 140px;
+    }
+
+    .shoes-panel-section .panel-section-label {
+      margin-bottom: 10px;
+    }
+
+    .shoes-panel-section .facets__inputs-list {
+      margin-bottom: 0;
+    }
+
+    .shoes-panel-section .facets__inputs-list--grid {
+      width: 220px;
+    }
+
+    /* Clothing panel — also expand right */
+    #panel-clothing .facets__panel-content {
+      top: 0;
+      left: 100%;
+      max-width: none;
+      width: max-content;
+      max-height: none;
+      margin-top: 0;
+      margin-left: 8px;
+      padding: var(--padding-lg);
+    }
+
+    #panel-clothing.is-open .facets__panel-content {
+      animation: panelFadeInRight var(--animation-speed) var(--animation-easing);
+    }
+
     /* ========== FILTER OPTIONS — List (checkbox) ========== */
     .facets__inputs-list {
       list-style: none;
@@ -566,50 +624,55 @@
               <svg class="icon-caret" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 1 5 5 9 1"></polyline></svg>
             </button>
             <div class="facets__panel-content" id="panel-content-shoes">
-              <!-- Gender pills -->
-              <div class="panel-section-label">Gender</div>
-              <div class="facets__pill-group" id="gender-pills">
-                <div class="facets__pill-label" onclick="selectGender(this, 'mens')">Men's</div>
-                <div class="facets__pill-label" onclick="selectGender(this, 'womens')">Women's</div>
+              <div class="shoes-panel-layout">
+
+                <!-- Gender + Size -->
+                <div class="shoes-panel-section">
+                  <div class="panel-section-label">Gender</div>
+                  <div class="facets__pill-group" id="gender-pills">
+                    <div class="facets__pill-label" onclick="selectGender(this, 'mens')">Men's</div>
+                    <div class="facets__pill-label" onclick="selectGender(this, 'womens')">Women's</div>
+                  </div>
+                  <div id="size-filter" style="display:none;margin-top:12px">
+                    <div class="panel-section-label" id="size-label">Size</div>
+                    <div class="facets__inputs-list--grid" id="size-grid"></div>
+                  </div>
+                </div>
+
+                <!-- Width -->
+                <div class="shoes-panel-section">
+                  <div class="panel-section-label">Width</div>
+                  <ul class="facets__inputs-list">
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Narrow (B)<span class="checkbox__count">12</span></div></li>
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Standard (D)<span class="checkbox__count">84</span></div></li>
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Wide (2E)<span class="checkbox__count">31</span></div></li>
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Extra Wide (4E)<span class="checkbox__count">8</span></div></li>
+                  </ul>
+                </div>
+
+                <!-- Activity -->
+                <div class="shoes-panel-section">
+                  <div class="panel-section-label">Activity</div>
+                  <ul class="facets__inputs-list">
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Road Running<span class="checkbox__count">45</span></div></li>
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Trail Running<span class="checkbox__count">28</span></div></li>
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Racing<span class="checkbox__count">16</span></div></li>
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Walking<span class="checkbox__count">22</span></div></li>
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Training<span class="checkbox__count">19</span></div></li>
+                  </ul>
+                </div>
+
+                <!-- Plate Type -->
+                <div class="shoes-panel-section">
+                  <div class="panel-section-label">Plate Type</div>
+                  <ul class="facets__inputs-list">
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Carbon Plate<span class="checkbox__count">14</span></div></li>
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Pebax Plate<span class="checkbox__count">8</span></div></li>
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>No Plate<span class="checkbox__count">62</span></div></li>
+                  </ul>
+                </div>
+
               </div>
-
-              <!-- Size grid (shown after gender) -->
-              <div id="size-filter" style="display:none">
-                <div class="panel-section-label" id="size-label">Size</div>
-                <div class="facets__inputs-list--grid" id="size-grid"></div>
-                <hr class="panel-divider">
-              </div>
-
-              <!-- Width -->
-              <div class="panel-section-label">Width</div>
-              <ul class="facets__inputs-list" style="margin-bottom:12px">
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Narrow (B)<span class="checkbox__count">12</span></div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Standard (D)<span class="checkbox__count">84</span></div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Wide (2E)<span class="checkbox__count">31</span></div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Extra Wide (4E)<span class="checkbox__count">8</span></div></li>
-              </ul>
-
-              <hr class="panel-divider">
-
-              <!-- Activity -->
-              <div class="panel-section-label">Activity</div>
-              <ul class="facets__inputs-list" style="margin-bottom:12px">
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Road Running<span class="checkbox__count">45</span></div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Trail Running<span class="checkbox__count">28</span></div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Racing<span class="checkbox__count">16</span></div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Walking<span class="checkbox__count">22</span></div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Training<span class="checkbox__count">19</span></div></li>
-              </ul>
-
-              <hr class="panel-divider">
-
-              <!-- Plate Type -->
-              <div class="panel-section-label">Plate Type</div>
-              <ul class="facets__inputs-list">
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Carbon Plate<span class="checkbox__count">14</span></div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Pebax Plate<span class="checkbox__count">8</span></div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>No Plate<span class="checkbox__count">62</span></div></li>
-              </ul>
             </div>
           </div>
         </div>
@@ -622,31 +685,44 @@
               <svg class="icon-caret" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 1 5 5 9 1"></polyline></svg>
             </button>
             <div class="facets__panel-content" id="panel-content-clothing">
-              <div class="panel-section-label">Type</div>
-              <ul class="facets__inputs-list" style="margin-bottom:12px">
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Tops<span class="checkbox__count">34</span></div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Bottoms<span class="checkbox__count">28</span></div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Jackets<span class="checkbox__count">12</span></div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Tights<span class="checkbox__count">15</span></div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Shorts<span class="checkbox__count">20</span></div></li>
-              </ul>
-              <hr class="panel-divider">
-              <div class="panel-section-label">Size</div>
-              <div class="facets__inputs-list--grid" style="width:240px;margin-bottom:12px">
-                <div class="size-option" onclick="toggleSize(this)">XS</div>
-                <div class="size-option" onclick="toggleSize(this)">S</div>
-                <div class="size-option" onclick="toggleSize(this)">M</div>
-                <div class="size-option" onclick="toggleSize(this)">L</div>
-                <div class="size-option" onclick="toggleSize(this)">XL</div>
-                <div class="size-option" onclick="toggleSize(this)">XXL</div>
+              <div class="shoes-panel-layout">
+
+                <!-- Gender -->
+                <div class="shoes-panel-section">
+                  <div class="panel-section-label">Gender</div>
+                  <div class="facets__pill-group">
+                    <div class="facets__pill-label" onclick="togglePill(this)">Men's</div>
+                    <div class="facets__pill-label" onclick="togglePill(this)">Women's</div>
+                    <div class="facets__pill-label" onclick="togglePill(this)">Unisex</div>
+                  </div>
+                </div>
+
+                <!-- Type -->
+                <div class="shoes-panel-section">
+                  <div class="panel-section-label">Type</div>
+                  <ul class="facets__inputs-list">
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Tops<span class="checkbox__count">34</span></div></li>
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Bottoms<span class="checkbox__count">28</span></div></li>
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Jackets<span class="checkbox__count">12</span></div></li>
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Tights<span class="checkbox__count">15</span></div></li>
+                    <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Shorts<span class="checkbox__count">20</span></div></li>
+                  </ul>
+                </div>
+
+                <!-- Size -->
+                <div class="shoes-panel-section">
+                  <div class="panel-section-label">Size</div>
+                  <div class="facets__inputs-list--grid" style="width:200px">
+                    <div class="size-option" onclick="toggleSize(this)">XS</div>
+                    <div class="size-option" onclick="toggleSize(this)">S</div>
+                    <div class="size-option" onclick="toggleSize(this)">M</div>
+                    <div class="size-option" onclick="toggleSize(this)">L</div>
+                    <div class="size-option" onclick="toggleSize(this)">XL</div>
+                    <div class="size-option" onclick="toggleSize(this)">XXL</div>
+                  </div>
+                </div>
+
               </div>
-              <hr class="panel-divider">
-              <div class="panel-section-label">Gender</div>
-              <ul class="facets__inputs-list">
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Men's</div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Women's</div></li>
-                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Unisex</div></li>
-              </ul>
             </div>
           </div>
         </div>
@@ -798,6 +874,11 @@
         return `<div class="size-option ${available ? '' : 'is-unavailable'}" onclick="toggleSize(this)" data-size="${s}">${s}</div>`;
       }).join('');
 
+      updateFilters();
+    }
+
+    function togglePill(el) {
+      el.classList.toggle('is-active');
       updateFilters();
     }
 
