@@ -121,6 +121,12 @@
       position: relative;
     }
 
+    /* Items with wide panels use static so the panel anchors to .facets--horizontal */
+    .facets__item:has(#panel-shoes),
+    .facets__item:has(#panel-clothing) {
+      position: static;
+    }
+
     .facets__summary {
       font-size: var(--font-size-paragraph);
       font-weight: var(--font-weight-body);
@@ -235,12 +241,19 @@
       to { opacity: 1; transform: translateX(0); }
     }
 
-    /* Shoes panel — drops down, content laid out horizontally */
-    #panel-shoes .facets__panel-content {
+    /* Wide panels — anchor to the facets bar, not the individual item */
+    #panel-shoes,
+    #panel-clothing {
+      position: static;
+    }
+
+    #panel-shoes .facets__panel-content,
+    #panel-clothing .facets__panel-content {
       max-width: none;
       width: max-content;
       max-height: none;
       padding: var(--padding-lg);
+      left: 0;
     }
 
     .shoes-panel-layout {
@@ -264,13 +277,6 @@
       width: 220px;
     }
 
-    /* Clothing panel — drops down, content laid out horizontally */
-    #panel-clothing .facets__panel-content {
-      max-width: none;
-      width: max-content;
-      max-height: none;
-      padding: var(--padding-lg);
-    }
 
     /* ========== FILTER OPTIONS — List (checkbox) ========== */
     .facets__inputs-list {
