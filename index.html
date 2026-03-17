@@ -564,14 +564,17 @@
     .product-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 1px;
-      background: var(--color-border);
-      border: 1px solid var(--color-border);
+      gap: 20px;
+      background: none;
+      border: none;
     }
 
     .product-card {
       background: var(--color-background);
       cursor: pointer;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      overflow: hidden;
     }
 
     .product-card:hover .product-card__img {
