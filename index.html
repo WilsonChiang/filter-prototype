@@ -452,6 +452,28 @@
       font-weight: var(--font-weight-subheading);
     }
 
+    /* ========== SIZE FILTER REVEAL ========== */
+    .size-filter-reveal {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      margin-top: 0;
+      transition: grid-template-rows 0.35s cubic-bezier(.25,.46,.45,.94),
+                  opacity 0.35s cubic-bezier(.25,.46,.45,.94),
+                  margin-top 0.35s cubic-bezier(.25,.46,.45,.94);
+    }
+
+    .size-filter-reveal.is-visible {
+      grid-template-rows: 1fr;
+      opacity: 1;
+      margin-top: 12px;
+    }
+
+    .size-filter-reveal > * {
+      overflow: hidden;
+      min-height: 0;
+    }
+
     /* ========== CATEGORY CLEARED NOTICE ========== */
     .category-cleared-notice {
       font-size: 12px;
@@ -645,9 +667,11 @@
                   <div id="size-hint" style="margin-top:12px">
                     <span style="font-size:12px;color:rgba(0,0,0,0.35);font-style:italic">Select a gender to see sizes</span>
                   </div>
-                  <div id="size-filter" style="display:none;margin-top:12px">
-                    <div class="panel-section-label" id="size-label">Size</div>
-                    <div class="facets__inputs-list--grid" id="size-grid"></div>
+                  <div id="size-filter" class="size-filter-reveal">
+                    <div>
+                      <div class="panel-section-label" id="size-label">Size</div>
+                      <div class="facets__inputs-list--grid" id="size-grid"></div>
+                    </div>
                   </div>
                 </div>
 
@@ -876,7 +900,7 @@
       if (category === 'shoes') {
         state.gender = null;
         state.selectedSizes = [];
-        document.getElementById('size-filter').style.display = 'none';
+        document.getElementById('size-filter').classList.remove('is-visible');
         document.getElementById('size-hint').style.display = 'block';
       }
       if (category === 'clothing') {
@@ -949,7 +973,7 @@
       if (state.gender === gender) {
         state.gender = null;
         el.classList.remove('is-active');
-        document.getElementById('size-filter').style.display = 'none';
+        document.getElementById('size-filter').classList.remove('is-visible');
         state.selectedSizes = [];
         updateFilters();
         return;
@@ -966,7 +990,7 @@
       const sizeGrid = document.getElementById('size-grid');
       const sizeLabel = document.getElementById('size-label');
 
-      sizeFilter.style.display = 'block';
+      sizeFilter.classList.add('is-visible');
       document.getElementById('size-hint').style.display = 'none';
       sizeLabel.textContent = gender === 'mens' ? "Men's Size" : "Women's Size";
 
@@ -1097,7 +1121,7 @@
       state.gender = null;
       state.selectedSizes = [];
       document.querySelectorAll('#gender-pills .facets__pill-label').forEach(p => p.classList.remove('is-active'));
-      document.getElementById('size-filter').style.display = 'none';
+      document.getElementById('size-filter').classList.remove('is-visible');
       document.getElementById('size-hint').style.display = 'block';
       updateFilters();
     }
@@ -1118,7 +1142,7 @@
       document.querySelectorAll('.facets__pill-label').forEach(p => p.classList.remove('is-active'));
       document.querySelectorAll('.size-option').forEach(p => p.classList.remove('is-active'));
       document.querySelectorAll('.checkbox').forEach(p => p.classList.remove('is-active'));
-      document.getElementById('size-filter').style.display = 'none';
+      document.getElementById('size-filter').classList.remove('is-visible');
       document.getElementById('size-hint').style.display = 'block';
       updateFilters();
     }
