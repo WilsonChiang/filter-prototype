@@ -235,20 +235,12 @@
       to { opacity: 1; transform: translateX(0); }
     }
 
-    /* Shoes panel — expand to the right as a wide horizontal panel */
+    /* Shoes panel — drops down, content laid out horizontally */
     #panel-shoes .facets__panel-content {
-      top: 0;
-      left: 100%;
       max-width: none;
       width: max-content;
       max-height: none;
-      margin-top: 0;
-      margin-left: 8px;
       padding: var(--padding-lg);
-    }
-
-    #panel-shoes.is-open .facets__panel-content {
-      animation: panelFadeInRight var(--animation-speed) var(--animation-easing);
     }
 
     .shoes-panel-layout {
@@ -272,20 +264,12 @@
       width: 220px;
     }
 
-    /* Clothing panel — also expand right */
+    /* Clothing panel — drops down, content laid out horizontally */
     #panel-clothing .facets__panel-content {
-      top: 0;
-      left: 100%;
       max-width: none;
       width: max-content;
       max-height: none;
-      margin-top: 0;
-      margin-left: 8px;
       padding: var(--padding-lg);
-    }
-
-    #panel-clothing.is-open .facets__panel-content {
-      animation: panelFadeInRight var(--animation-speed) var(--animation-easing);
     }
 
     /* ========== FILTER OPTIONS — List (checkbox) ========== */
@@ -633,6 +617,9 @@
                     <div class="facets__pill-label" onclick="selectGender(this, 'mens')">Men's</div>
                     <div class="facets__pill-label" onclick="selectGender(this, 'womens')">Women's</div>
                   </div>
+                  <div id="size-hint" style="margin-top:12px">
+                    <span style="font-size:12px;color:rgba(0,0,0,0.35);font-style:italic">Select a gender to see sizes</span>
+                  </div>
                   <div id="size-filter" style="display:none;margin-top:12px">
                     <div class="panel-section-label" id="size-label">Size</div>
                     <div class="facets__inputs-list--grid" id="size-grid"></div>
@@ -860,6 +847,7 @@
       const sizeLabel = document.getElementById('size-label');
 
       sizeFilter.style.display = 'block';
+      document.getElementById('size-hint').style.display = 'none';
       sizeLabel.textContent = gender === 'mens' ? "Men's Size" : "Women's Size";
 
       const sizes = gender === 'mens' ? mensSizes : womensSizes;
@@ -955,6 +943,7 @@
       state.selectedSizes = [];
       document.querySelectorAll('#gender-pills .facets__pill-label').forEach(p => p.classList.remove('is-active'));
       document.getElementById('size-filter').style.display = 'none';
+      document.getElementById('size-hint').style.display = 'block';
       updateFilters();
     }
 
