@@ -207,6 +207,42 @@
       margin-left: auto;
     }
 
+    /* Category items hide/show */
+    .facets__item.is-hidden {
+      display: none;
+    }
+
+    .facets__close-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--color-variant-border);
+      border-radius: 50%;
+      background: var(--color-background);
+      cursor: pointer;
+      padding: 0;
+      margin-left: 2px;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .facets__close-btn:hover {
+      background: var(--color-variant-hover-bg);
+      border-color: rgba(0,0,0,0.25);
+    }
+
+    .facets__close-btn svg {
+      width: 10px;
+      height: 10px;
+      color: var(--color-foreground);
+    }
+
+    .facets__panel.is-open ~ .facets__close-btn {
+      display: inline-flex;
+    }
+
     /* ========== DROPDOWN PANEL ========== */
     .facets__panel-content {
       display: none;
@@ -605,7 +641,7 @@
       <div class="facets__filters-wrapper" id="filters-wrapper">
 
         <!-- SHOES filter -->
-        <div class="facets__item">
+        <div class="facets__item" data-category="product-type">
           <div class="facets__panel" id="panel-shoes">
             <button type="button" class="facets__summary" onclick="togglePanel('shoes')">
               <span class="facets__label">Shoes</span>
@@ -668,10 +704,13 @@
               </div>
             </div>
           </div>
+          <button type="button" class="facets__close-btn" onclick="closeCategory()">
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg>
+          </button>
         </div>
 
         <!-- CLOTHING filter -->
-        <div class="facets__item">
+        <div class="facets__item" data-category="product-type">
           <div class="facets__panel" id="panel-clothing">
             <button type="button" class="facets__summary" onclick="togglePanel('clothing')">
               <span class="facets__label">Clothing</span>
@@ -718,10 +757,13 @@
               </div>
             </div>
           </div>
+          <button type="button" class="facets__close-btn" onclick="closeCategory()">
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg>
+          </button>
         </div>
 
         <!-- ACCESSORIES filter -->
-        <div class="facets__item">
+        <div class="facets__item" data-category="product-type">
           <div class="facets__panel" id="panel-accessories">
             <button type="button" class="facets__summary" onclick="togglePanel('accessories')">
               <span class="facets__label">Accessories</span>
@@ -738,6 +780,9 @@
               </ul>
             </div>
           </div>
+          <button type="button" class="facets__close-btn" onclick="closeCategory()">
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg>
+          </button>
         </div>
 
         <!-- BRAND filter -->
@@ -819,18 +864,43 @@
 
     let state = { gender: null, selectedSizes: [], activePanel: null };
 
+    const categoryPanels = ['shoes', 'clothing', 'accessories'];
+
     function togglePanel(name) {
       const panels = ['shoes', 'clothing', 'accessories', 'brand', 'availability'];
 
       if (state.activePanel === name) {
-        document.getElementById('panel-' + name).classList.remove('is-open');
-        state.activePanel = null;
+        closeCategory();
         return;
       }
 
+      // Close any open panel
       panels.forEach(p => document.getElementById('panel-' + p).classList.remove('is-open'));
+
+      // Open the new panel
       document.getElementById('panel-' + name).classList.add('is-open');
       state.activePanel = name;
+
+      // If this is a product-type category, hide siblings
+      if (categoryPanels.includes(name)) {
+        document.querySelectorAll('.facets__item[data-category="product-type"]').forEach(item => {
+          const panel = item.querySelector('.facets__panel');
+          if (panel && panel.id !== 'panel-' + name) {
+            item.classList.add('is-hidden');
+          }
+        });
+      }
+    }
+
+    function closeCategory() {
+      if (state.activePanel) {
+        document.getElementById('panel-' + state.activePanel).classList.remove('is-open');
+      }
+      // Show all hidden category items
+      document.querySelectorAll('.facets__item.is-hidden').forEach(item => {
+        item.classList.remove('is-hidden');
+      });
+      state.activePanel = null;
     }
 
     function selectGender(el, gender) {
@@ -1005,11 +1075,9 @@
 
     // Close on outside click
     document.addEventListener('click', (e) => {
-      // Don't close if clicking inside a filter item or active filter pills
       if (e.target.closest('.facets__item') || e.target.closest('.filter-remove-buttons')) return;
       if (state.activePanel) {
-        document.getElementById('panel-' + state.activePanel).classList.remove('is-open');
-        state.activePanel = null;
+        closeCategory();
       }
     });
 
