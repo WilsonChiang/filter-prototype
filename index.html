@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Filter Prototype — Horizon Style</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Horizon scheme-1 colors */
+      --color-background: #ffffff;
+      --color-foreground: #000000cf;
+      --color-foreground-heading: #000000;
+      --color-border: #0000000f;
+      --color-primary-btn-bg: #000000;
+      --color-primary-btn-text: #ffffff;
+      --color-primary-btn-hover-bg: #333333;
+      --color-secondary-btn-bg: #0000000f;
+      --color-secondary-btn-text: #000000;
+      --color-input-bg: #ffffffc7;
+      --color-input-border: #f5f5f5;
+      --color-variant-bg: #ffffff;
+      --color-variant-text: #000000;
+      --color-variant-border: #00000021;
+      --color-variant-hover-bg: #f5f5f5;
+      --color-shadow: #000000;
+
+      /* Typography */
+      --font-body: 'Oswald', sans-serif;
+      --font-weight-body: 300;
+      --font-weight-heading: 500;
+      --font-weight-subheading: 400;
+      --font-weight-accent: 600;
+      --font-size-paragraph: 16px;
+
+      /* Buttons */
+      --button-border-radius: 60px;
+
+      /* Spacing */
+      --popover-border-radius: 14px;
+      --padding-xs: 4px;
+      --padding-sm: 8px;
+      --padding-md: 16px;
+      --padding-lg: 24px;
+      --padding-xl: 32px;
+      --gap-sm: 8px;
+      --gap-md: 12px;
+      --gap-xl: 20px;
+      --minimum-touch-target: 48px;
+
+      /* Animation */
+      --animation-speed: 0.25s;
+      --animation-easing: ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      font-weight: var(--font-weight-body);
+      background: var(--color-background);
+      color: var(--color-foreground);
+      font-size: var(--font-size-paragraph);
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ========== COLLECTION HEADER ========== */
+    .collection-header {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 40px 40px 24px;
+    }
+
+    .collection-header h1 {
+      font-weight: var(--font-weight-heading);
+      font-size: 32px;
+      text-transform: uppercase;
+      color: var(--color-foreground-heading);
+      letter-spacing: 0.02em;
+    }
+
+    /* ========== FACETS BAR (Horizontal) ========== */
+    .facets--horizontal {
+      display: flex;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    .facets__form {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      width: 100%;
+    }
+
+    .facets__filters-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      column-gap: var(--gap-xl);
+      max-width: 70%;
+      margin-inline-end: auto;
+    }
+
+    /* Dim siblings when one is open */
+    .facets__filters-wrapper:has(.facets__panel.is-open) .facets__item {
+      opacity: 0.5;
+      transition: opacity var(--animation-speed) var(--animation-easing);
+    }
+    .facets__filters-wrapper:has(.facets__panel.is-open) .facets__item:has(.facets__panel.is-open) {
+      opacity: 1;
+    }
+
+    .facets__item {
+      position: relative;
+    }
+
+    .facets__summary {
+      font-size: var(--font-size-paragraph);
+      font-weight: var(--font-weight-body);
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 6px;
+      height: var(--minimum-touch-target);
+      cursor: pointer;
+      color: var(--color-foreground);
+      text-decoration: none;
+      border: none;
+      background: none;
+      font-family: var(--font-body);
+      padding: 0;
+      white-space: nowrap;
+    }
+
+    .facets__summary:hover {
+      opacity: 0.75;
+    }
+
+    .facets__label {
+      color: var(--color-foreground-heading);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .facets__summary .icon-caret {
+      width: 12px;
+      height: 12px;
+      color: rgba(0,0,0,0.5);
+      transition: transform var(--animation-speed) var(--animation-easing),
+                  color var(--animation-speed) var(--animation-easing);
+    }
+
+    .facets__panel.is-open .facets__summary .icon-caret {
+      transform: rotate(180deg);
+      color: var(--color-foreground-heading);
+    }
+
+    /* Bubble (active count) */
+    .bubble {
+      display: inline-flex;
+      height: 18px;
+      min-width: 20px;
+      padding: 0 6px;
+      border-radius: 20px;
+      background-color: rgba(0,0,0,0.08);
+      color: var(--color-foreground-heading);
+      font-size: 11px;
+      font-weight: var(--font-weight-subheading);
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Status preview text */
+    .facets__status {
+      font-size: 13px;
+      color: rgba(0,0,0,0.45);
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .facets__panel.is-open .facets__status {
+      display: none;
+    }
+
+    /* Products count */
+    .products-count-wrapper {
+      font-size: 14px;
+      color: rgba(0,0,0,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      margin-left: auto;
+    }
+
+    /* ========== DROPDOWN PANEL ========== */
+    .facets__panel-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: max-content;
+      min-width: 180px;
+      max-width: 400px;
+      max-height: 360px;
+      z-index: 20;
+      background-color: var(--color-background);
+      border-radius: var(--popover-border-radius);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+      overflow-y: auto;
+      padding: var(--padding-md);
+      margin-top: 4px;
+    }
+
+    .facets__panel.is-open .facets__panel-content {
+      display: block;
+      animation: panelFadeIn var(--animation-speed) var(--animation-easing);
+    }
+
+    @keyframes panelFadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========== FILTER OPTIONS — List (checkbox) ========== */
+    .facets__inputs-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap-sm);
+    }
+
+    .facets__inputs-list-item {
+      position: relative;
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: var(--font-weight-body);
+      color: var(--color-foreground);
+      padding: 4px 0;
+      transition: opacity var(--animation-speed) var(--animation-easing);
+    }
+
+    .checkbox:hover {
+      opacity: 0.75;
+    }
+
+    .checkbox__box {
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid var(--color-variant-border);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+      background: var(--color-variant-bg);
+    }
+
+    .checkbox.is-active .checkbox__box {
+      background: var(--color-foreground-heading);
+      border-color: var(--color-foreground-heading);
+    }
+
+    .checkbox.is-active .checkbox__box::after {
+      content: '';
+      width: 4px;
+      height: 9px;
+      border: solid var(--color-background);
+      border-width: 0 1.5px 1.5px 0;
+      transform: rotate(45deg);
+      margin-top: -2px;
+    }
+
+    .checkbox__count {
+      color: rgba(0,0,0,0.35);
+      font-size: 13px;
+      margin-left: auto;
+    }
+
+    .checkbox--disabled {
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    /* ========== FILTER OPTIONS — Pills (for gender) ========== */
+    .facets__pill-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .facets__pill-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 20px;
+      border-radius: var(--button-border-radius);
+      height: 38px;
+      background-color: var(--color-variant-bg);
+      border: 1px solid var(--color-variant-border);
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: var(--font-weight-subheading);
+      color: var(--color-variant-text);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      transition: all 0.15s;
+    }
+
+    .facets__pill-label:hover {
+      background-color: var(--color-variant-hover-bg);
+    }
+
+    .facets__pill-label.is-active {
+      background-color: var(--color-foreground-heading);
+      color: var(--color-primary-btn-text);
+      border-color: var(--color-foreground-heading);
+      font-weight: var(--font-weight-heading);
+    }
+
+    /* ========== SIZE GRID ========== */
+    .facets__inputs-list--grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+      gap: var(--gap-sm);
+      width: 300px;
+    }
+
+    .size-option {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      border: 1px solid var(--color-variant-border);
+      border-radius: 4px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: var(--font-weight-subheading);
+      cursor: pointer;
+      color: var(--color-variant-text);
+      background: var(--color-variant-bg);
+      transition: all 0.15s;
+    }
+
+    .size-option:hover {
+      background: var(--color-variant-hover-bg);
+      border-color: rgba(0,0,0,0.25);
+    }
+
+    .size-option.is-active {
+      background: var(--color-foreground-heading);
+      color: var(--color-primary-btn-text);
+      border-color: var(--color-foreground-heading);
+      font-weight: var(--font-weight-heading);
+    }
+
+    .size-option.is-unavailable {
+      opacity: 0.2;
+      pointer-events: none;
+      position: relative;
+    }
+
+    .size-option.is-unavailable::after {
+      content: '';
+      position: absolute;
+      width: 70%;
+      height: 1px;
+      background: var(--color-foreground-heading);
+      transform: rotate(-12deg);
+    }
+
+    /* ========== SECTION DIVIDER IN PANEL ========== */
+    .panel-divider {
+      width: 100%;
+      height: 0;
+      border: none;
+      border-top: 1px solid var(--color-border);
+      margin: 12px 0;
+    }
+
+    .panel-section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(0,0,0,0.4);
+      margin-bottom: 8px;
+      font-weight: var(--font-weight-subheading);
+    }
+
+    /* ========== ACTIVE FILTER PILLS ========== */
+    .filter-remove-buttons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 8px 40px 0;
+      min-height: 0;
+    }
+
+    .filter-remove-buttons:empty {
+      display: none;
+    }
+
+    .pills__pill {
+      display: flex;
+      align-items: center;
+      gap: var(--gap-sm);
+      min-width: 48px;
+      padding: 6px 12px;
+      border-radius: var(--button-border-radius);
+      cursor: pointer;
+      background-color: rgba(0,0,0,0.06);
+      color: var(--color-foreground);
+      font-size: 13px;
+      font-weight: var(--font-weight-body);
+      transition: background-color var(--animation-speed) var(--animation-easing);
+      border: none;
+      font-family: var(--font-body);
+    }
+
+    .pills__pill:hover {
+      background-color: rgba(0,0,0,0.12);
+    }
+
+    .pills__pill .icon-close {
+      width: 10px;
+      height: 10px;
+      opacity: 0.4;
+    }
+
+    .clear-all-link {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: var(--font-weight-body);
+      color: rgba(0,0,0,0.5);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: rgba(0,0,0,0.25);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 6px 4px;
+      transition: text-decoration-color var(--animation-speed) var(--animation-easing);
+    }
+
+    .clear-all-link:hover {
+      text-decoration-color: rgba(0,0,0,0.7);
+      color: var(--color-foreground-heading);
+    }
+
+    /* ========== PRODUCT GRID ========== */
+    .collection-content {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px 40px 60px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--color-border);
+      border: 1px solid var(--color-border);
+    }
+
+    .product-card {
+      background: var(--color-background);
+      cursor: pointer;
+    }
+
+    .product-card:hover .product-card__img {
+      opacity: 0.92;
+    }
+
+    .product-card__img {
+      aspect-ratio: 1;
+      background: #f4f4f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      transition: opacity 0.3s;
+    }
+
+    .product-card__info {
+      padding: 16px 14px 20px;
+    }
+
+    .product-card__brand {
+      font-size: 11px;
+      font-weight: var(--font-weight-subheading);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgba(0,0,0,0.45);
+      margin-bottom: 2px;
+    }
+
+    .product-card__name {
+      font-size: 15px;
+      font-weight: var(--font-weight-body);
+      color: var(--color-foreground-heading);
+      margin-bottom: 4px;
+    }
+
+    .product-card__price {
+      font-size: 14px;
+      font-weight: var(--font-weight-subheading);
+      color: var(--color-foreground);
+    }
+
+    .product-card__sizes {
+      font-size: 12px;
+      color: rgba(0,0,0,0.35);
+      margin-top: 6px;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 749px) {
+      .collection-header { padding: 24px 20px 16px; }
+      .collection-header h1 { font-size: 24px; }
+      .facets--horizontal { padding: 0 20px; }
+      .filter-remove-buttons { padding: 8px 20px 0; }
+      .collection-content { padding: 16px 20px 40px; }
+      .product-grid { grid-template-columns: repeat(2, 1fr); }
+      .facets__filters-wrapper { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="collection-header">
+    <h1>All Products</h1>
+  </div>
+
+  <!-- Horizontal Facets Bar -->
+  <div class="facets facets--horizontal">
+    <div class="facets__form">
+      <div class="facets__filters-wrapper" id="filters-wrapper">
+
+        <!-- SHOES filter -->
+        <div class="facets__item">
+          <div class="facets__panel" id="panel-shoes">
+            <button class="facets__summary" onclick="togglePanel('shoes')">
+              <span class="facets__label">Shoes</span>
+              <span class="facets__status" id="shoes-status"></span>
+              <span class="bubble" id="shoes-badge" style="display:none">0</span>
+              <svg class="icon-caret" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 1 5 5 9 1"></polyline></svg>
+            </button>
+            <div class="facets__panel-content" id="panel-content-shoes">
+              <!-- Gender pills -->
+              <div class="panel-section-label">Gender</div>
+              <div class="facets__pill-group" id="gender-pills">
+                <div class="facets__pill-label" onclick="selectGender(this, 'mens')">Men's</div>
+                <div class="facets__pill-label" onclick="selectGender(this, 'womens')">Women's</div>
+              </div>
+
+              <!-- Size grid (shown after gender) -->
+              <div id="size-filter" style="display:none">
+                <div class="panel-section-label" id="size-label">Size</div>
+                <div class="facets__inputs-list--grid" id="size-grid"></div>
+                <hr class="panel-divider">
+              </div>
+
+              <!-- Width -->
+              <div class="panel-section-label">Width</div>
+              <ul class="facets__inputs-list" style="margin-bottom:12px">
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Narrow (B)<span class="checkbox__count">12</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Standard (D)<span class="checkbox__count">84</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Wide (2E)<span class="checkbox__count">31</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Extra Wide (4E)<span class="checkbox__count">8</span></div></li>
+              </ul>
+
+              <hr class="panel-divider">
+
+              <!-- Activity -->
+              <div class="panel-section-label">Activity</div>
+              <ul class="facets__inputs-list" style="margin-bottom:12px">
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Road Running<span class="checkbox__count">45</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Trail Running<span class="checkbox__count">28</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Racing<span class="checkbox__count">16</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Walking<span class="checkbox__count">22</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Training<span class="checkbox__count">19</span></div></li>
+              </ul>
+
+              <hr class="panel-divider">
+
+              <!-- Plate Type -->
+              <div class="panel-section-label">Plate Type</div>
+              <ul class="facets__inputs-list">
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Carbon Plate<span class="checkbox__count">14</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Pebax Plate<span class="checkbox__count">8</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>No Plate<span class="checkbox__count">62</span></div></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- CLOTHING filter -->
+        <div class="facets__item">
+          <div class="facets__panel" id="panel-clothing">
+            <button class="facets__summary" onclick="togglePanel('clothing')">
+              <span class="facets__label">Clothing</span>
+              <svg class="icon-caret" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 1 5 5 9 1"></polyline></svg>
+            </button>
+            <div class="facets__panel-content" id="panel-content-clothing">
+              <div class="panel-section-label">Type</div>
+              <ul class="facets__inputs-list" style="margin-bottom:12px">
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Tops<span class="checkbox__count">34</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Bottoms<span class="checkbox__count">28</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Jackets<span class="checkbox__count">12</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Tights<span class="checkbox__count">15</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Shorts<span class="checkbox__count">20</span></div></li>
+              </ul>
+              <hr class="panel-divider">
+              <div class="panel-section-label">Size</div>
+              <div class="facets__inputs-list--grid" style="width:240px;margin-bottom:12px">
+                <div class="size-option" onclick="toggleSize(this)">XS</div>
+                <div class="size-option" onclick="toggleSize(this)">S</div>
+                <div class="size-option" onclick="toggleSize(this)">M</div>
+                <div class="size-option" onclick="toggleSize(this)">L</div>
+                <div class="size-option" onclick="toggleSize(this)">XL</div>
+                <div class="size-option" onclick="toggleSize(this)">XXL</div>
+              </div>
+              <hr class="panel-divider">
+              <div class="panel-section-label">Gender</div>
+              <ul class="facets__inputs-list">
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Men's</div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Women's</div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Unisex</div></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACCESSORIES filter -->
+        <div class="facets__item">
+          <div class="facets__panel" id="panel-accessories">
+            <button class="facets__summary" onclick="togglePanel('accessories')">
+              <span class="facets__label">Accessories</span>
+              <svg class="icon-caret" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 1 5 5 9 1"></polyline></svg>
+            </button>
+            <div class="facets__panel-content" id="panel-content-accessories">
+              <div class="panel-section-label">Type</div>
+              <ul class="facets__inputs-list">
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Socks<span class="checkbox__count">18</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Hats<span class="checkbox__count">9</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Insoles<span class="checkbox__count">6</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Bags<span class="checkbox__count">11</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Hydration<span class="checkbox__count">7</span></div></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- BRAND filter -->
+        <div class="facets__item">
+          <div class="facets__panel" id="panel-brand">
+            <button class="facets__summary" onclick="togglePanel('brand')">
+              <span class="facets__label">Brand</span>
+              <svg class="icon-caret" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 1 5 5 9 1"></polyline></svg>
+            </button>
+            <div class="facets__panel-content" id="panel-content-brand">
+              <ul class="facets__inputs-list">
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Nike<span class="checkbox__count">42</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>ASICS<span class="checkbox__count">38</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>New Balance<span class="checkbox__count">35</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>HOKA<span class="checkbox__count">29</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Saucony<span class="checkbox__count">24</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Brooks<span class="checkbox__count">21</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>On<span class="checkbox__count">18</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Altra<span class="checkbox__count">14</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>adidas<span class="checkbox__count">12</span></div></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Products count -->
+      <div class="products-count-wrapper" id="results-count">12 Products</div>
+    </div>
+  </div>
+
+  <!-- Active filter pills -->
+  <div class="filter-remove-buttons" id="active-filters"></div>
+
+  <!-- Products -->
+  <main class="collection-content">
+    <div class="product-grid" id="product-grid"></div>
+  </main>
+
+  <script>
+    const mensSizes = ['6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11','11.5','12','13','14'];
+    const womensSizes = ['5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11','12'];
+
+    const products = [
+      { brand: 'Nike', name: 'Vaporfly 3', price: 260, mensSizes: ['8','8.5','9','9.5','10','10.5','11'], womensSizes: ['6','6.5','7','7.5','8','8.5','9'], gender: 'unisex', plate: 'Carbon Plate', activity: 'Racing' },
+      { brand: 'Nike', name: 'Pegasus 42', price: 140, mensSizes: ['7','7.5','8','8.5','9','9.5','10','10.5','11','12'], womensSizes: ['5','5.5','6','6.5','7','7.5','8','8.5','9','10'], gender: 'unisex', plate: 'No Plate', activity: 'Road Running' },
+      { brand: 'ASICS', name: 'Gel-Kayano 31', price: 160, mensSizes: ['8','8.5','9','9.5','10','10.5','11','12','13'], womensSizes: [], gender: 'mens', plate: 'No Plate', activity: 'Road Running' },
+      { brand: 'ASICS', name: 'Gel-Nimbus 26', price: 160, mensSizes: [], womensSizes: ['6','6.5','7','7.5','8','8.5','9','9.5'], gender: 'womens', plate: 'No Plate', activity: 'Road Running' },
+      { brand: 'HOKA', name: 'Clifton 9', price: 145, mensSizes: ['7','8','8.5','9','9.5','10','10.5','11','12','13'], womensSizes: ['5','6','6.5','7','7.5','8','8.5','9','10','11'], gender: 'unisex', plate: 'No Plate', activity: 'Road Running' },
+      { brand: 'HOKA', name: 'Speedgoat 6', price: 155, mensSizes: ['8','9','9.5','10','10.5','11','12'], womensSizes: ['6','7','7.5','8','8.5','9','10'], gender: 'unisex', plate: 'No Plate', activity: 'Trail Running' },
+      { brand: 'New Balance', name: 'FuelCell SC Elite v4', price: 275, mensSizes: ['8','8.5','9','9.5','10','10.5','11'], womensSizes: ['6.5','7','7.5','8','8.5','9'], gender: 'unisex', plate: 'Carbon Plate', activity: 'Racing' },
+      { brand: 'Saucony', name: 'Endorphin Speed 4', price: 170, mensSizes: ['7','7.5','8','8.5','9','9.5','10','10.5','11','12'], womensSizes: ['5','5.5','6','6.5','7','7.5','8','8.5','9','10'], gender: 'unisex', plate: 'Pebax Plate', activity: 'Road Running' },
+      { brand: 'Brooks', name: 'Ghost 16', price: 140, mensSizes: ['8','8.5','9','9.5','10','10.5','11','11.5','12','13'], womensSizes: [], gender: 'mens', plate: 'No Plate', activity: 'Road Running' },
+      { brand: 'On', name: 'Cloudmonster 2', price: 170, mensSizes: ['8','8.5','9','9.5','10','10.5','11','12'], womensSizes: ['6','6.5','7','7.5','8','8.5','9','10'], gender: 'unisex', plate: 'No Plate', activity: 'Road Running' },
+      { brand: 'Nike', name: 'Alphafly 3', price: 285, mensSizes: ['8','9','9.5','10','10.5','11'], womensSizes: ['6.5','7','7.5','8','8.5','9'], gender: 'unisex', plate: 'Carbon Plate', activity: 'Racing' },
+      { brand: 'HOKA', name: 'Tecton X 3', price: 225, mensSizes: ['8','8.5','9','9.5','10','10.5','11','12'], womensSizes: ['6','6.5','7','7.5','8','8.5','9','10'], gender: 'unisex', plate: 'Carbon Plate', activity: 'Trail Running' },
+    ];
+
+    let state = { gender: null, selectedSizes: [], activePanel: null };
+
+    function togglePanel(name) {
+      const panels = ['shoes', 'clothing', 'accessories', 'brand'];
+
+      if (state.activePanel === name) {
+        document.getElementById('panel-' + name).classList.remove('is-open');
+        state.activePanel = null;
+        return;
+      }
+
+      panels.forEach(p => document.getElementById('panel-' + p).classList.remove('is-open'));
+      document.getElementById('panel-' + name).classList.add('is-open');
+      state.activePanel = name;
+    }
+
+    function selectGender(el, gender) {
+      if (state.gender === gender) {
+        state.gender = null;
+        el.classList.remove('is-active');
+        document.getElementById('size-filter').style.display = 'none';
+        state.selectedSizes = [];
+        updateFilters();
+        return;
+      }
+
+      document.querySelectorAll('#gender-pills .facets__pill-label').forEach(p => p.classList.remove('is-active'));
+      el.classList.add('is-active');
+      state.gender = gender;
+      state.selectedSizes = [];
+
+      const sizeFilter = document.getElementById('size-filter');
+      const sizeGrid = document.getElementById('size-grid');
+      const sizeLabel = document.getElementById('size-label');
+
+      sizeFilter.style.display = 'block';
+      sizeLabel.textContent = gender === 'mens' ? "Men's Size" : "Women's Size";
+
+      const sizes = gender === 'mens' ? mensSizes : womensSizes;
+      const availableSizes = new Set();
+      products.forEach(p => {
+        const productSizes = gender === 'mens' ? p.mensSizes : p.womensSizes;
+        productSizes.forEach(s => availableSizes.add(s));
+      });
+
+      sizeGrid.innerHTML = sizes.map(s => {
+        const available = availableSizes.has(s);
+        return `<div class="size-option ${available ? '' : 'is-unavailable'}" onclick="toggleSize(this)" data-size="${s}">${s}</div>`;
+      }).join('');
+
+      updateFilters();
+    }
+
+    function toggleCheckbox(el) {
+      el.classList.toggle('is-active');
+      updateFilters();
+    }
+
+    function toggleSize(el) {
+      if (el.classList.contains('is-unavailable')) return;
+      el.classList.toggle('is-active');
+      const size = el.dataset.size || el.textContent;
+      if (el.classList.contains('is-active')) {
+        state.selectedSizes.push(size);
+      } else {
+        state.selectedSizes = state.selectedSizes.filter(s => s !== size);
+      }
+      updateFilters();
+    }
+
+    function updateFilters() {
+      let count = 0;
+      if (state.gender) count++;
+      count += state.selectedSizes.length;
+
+      const badge = document.getElementById('shoes-badge');
+      const status = document.getElementById('shoes-status');
+      if (count > 0) {
+        badge.style.display = 'inline-flex';
+        badge.textContent = count;
+        const label = state.gender === 'mens' ? "Men's" : "Women's";
+        status.textContent = label + (state.selectedSizes.length ? ', ' + state.selectedSizes[0] + (state.selectedSizes.length > 1 ? '...' : '') : '');
+      } else {
+        badge.style.display = 'none';
+        status.textContent = '';
+      }
+
+      // Active filter pills
+      const container = document.getElementById('active-filters');
+      let html = '';
+      if (state.gender) {
+        const label = state.gender === 'mens' ? "Men's" : "Women's";
+        html += `<button class="pills__pill" onclick="clearGender()">${label}<svg class="icon-close" viewBox="0 0 10 10" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg></button>`;
+      }
+      state.selectedSizes.forEach(s => {
+        html += `<button class="pills__pill" onclick="clearSize('${s}')">Size ${s}<svg class="icon-close" viewBox="0 0 10 10" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg></button>`;
+      });
+      if (count > 1) {
+        html += `<button class="clear-all-link" onclick="clearAll()">Clear all</button>`;
+      }
+      container.innerHTML = html;
+
+      // Filter products
+      let filtered = [...products];
+      if (state.gender) {
+        filtered = filtered.filter(p => {
+          if (state.gender === 'mens') return p.mensSizes.length > 0;
+          return p.womensSizes.length > 0;
+        });
+      }
+      if (state.selectedSizes.length > 0) {
+        filtered = filtered.filter(p => {
+          const sizes = state.gender === 'mens' ? p.mensSizes : p.womensSizes;
+          return state.selectedSizes.some(s => sizes.includes(s));
+        });
+      }
+
+      document.getElementById('results-count').textContent = `${filtered.length} Products`;
+      renderProducts(filtered);
+    }
+
+    function clearGender() {
+      state.gender = null;
+      state.selectedSizes = [];
+      document.querySelectorAll('#gender-pills .facets__pill-label').forEach(p => p.classList.remove('is-active'));
+      document.getElementById('size-filter').style.display = 'none';
+      updateFilters();
+    }
+
+    function clearSize(size) {
+      state.selectedSizes = state.selectedSizes.filter(s => s !== size);
+      document.querySelectorAll('#size-grid .size-option').forEach(el => {
+        if ((el.dataset.size || el.textContent) === size) el.classList.remove('is-active');
+      });
+      updateFilters();
+    }
+
+    function clearAll() {
+      state.gender = null;
+      state.selectedSizes = [];
+      document.querySelectorAll('.facets__pill-label').forEach(p => p.classList.remove('is-active'));
+      document.querySelectorAll('.size-option').forEach(p => p.classList.remove('is-active'));
+      document.querySelectorAll('.checkbox').forEach(p => p.classList.remove('is-active'));
+      document.getElementById('size-filter').style.display = 'none';
+      updateFilters();
+    }
+
+    function renderProducts(filtered) {
+      const grid = document.getElementById('product-grid');
+      const colors = ['#f0ebe8', '#e8ecf0', '#e8f0ea', '#f0eee8', '#ece8f0', '#e8edf0'];
+
+      grid.innerHTML = filtered.map((p, i) => {
+        let sizeText = '';
+        if (state.gender === 'mens') {
+          sizeText = `Men's: ${p.mensSizes.join(', ')}`;
+        } else if (state.gender === 'womens') {
+          sizeText = `Women's: ${p.womensSizes.join(', ')}`;
+        } else if (p.gender === 'unisex') {
+          sizeText = `M${p.mensSizes[0]}/W${p.womensSizes[0]} – M${p.mensSizes[p.mensSizes.length-1]}/W${p.womensSizes[p.womensSizes.length-1]}`;
+        } else if (p.gender === 'mens') {
+          sizeText = `Men's: ${p.mensSizes[0]}–${p.mensSizes[p.mensSizes.length-1]}`;
+        } else {
+          sizeText = `Women's: ${p.womensSizes[0]}–${p.womensSizes[p.womensSizes.length-1]}`;
+        }
+
+        return `
+          <div class="product-card">
+            <div class="product-card__img" style="background:${colors[i % colors.length]}">&#128095;</div>
+            <div class="product-card__info">
+              <div class="product-card__brand">${p.brand}</div>
+              <div class="product-card__name">${p.name}</div>
+              <div class="product-card__price">$${p.price}.00</div>
+              <div class="product-card__sizes">${sizeText}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.facets__item') && state.activePanel) {
+        document.getElementById('panel-' + state.activePanel).classList.remove('is-open');
+        state.activePanel = null;
+      }
+    });
+
+    renderProducts(products);
+  </script>
+</body>
+</html>
