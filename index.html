@@ -694,6 +694,26 @@
           </div>
         </div>
 
+        <!-- IN-STORE AVAILABILITY filter -->
+        <div class="facets__item">
+          <div class="facets__panel" id="panel-availability">
+            <button class="facets__summary" onclick="togglePanel('availability')">
+              <span class="facets__label">In-Store Availability</span>
+              <svg class="icon-caret" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 1 5 5 9 1"></polyline></svg>
+            </button>
+            <div class="facets__panel-content" id="panel-content-availability">
+              <div class="panel-section-label">Location</div>
+              <ul class="facets__inputs-list">
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Queen St. West<span class="checkbox__count">87</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Bayview Village<span class="checkbox__count">64</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Leaside<span class="checkbox__count">72</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Oakville<span class="checkbox__count">58</span></div></li>
+                <li class="facets__inputs-list-item"><div class="checkbox" onclick="toggleCheckbox(this)"><span class="checkbox__box"></span>Burlington<span class="checkbox__count">51</span></div></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- Products count -->
@@ -731,7 +751,7 @@
     let state = { gender: null, selectedSizes: [], activePanel: null };
 
     function togglePanel(name) {
-      const panels = ['shoes', 'clothing', 'accessories', 'brand'];
+      const panels = ['shoes', 'clothing', 'accessories', 'brand', 'availability'];
 
       if (state.activePanel === name) {
         document.getElementById('panel-' + name).classList.remove('is-open');
