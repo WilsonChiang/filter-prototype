@@ -857,6 +857,22 @@
       { brand: 'On', name: 'Cloudmonster 2', price: 170, mensSizes: ['8','8.5','9','9.5','10','10.5','11','12'], womensSizes: ['6','6.5','7','7.5','8','8.5','9','10'], gender: 'unisex', plate: 'No Plate', activity: 'Road Running' },
       { brand: 'Nike', name: 'Alphafly 3', price: 285, mensSizes: ['8','9','9.5','10','10.5','11'], womensSizes: ['6.5','7','7.5','8','8.5','9'], gender: 'unisex', plate: 'Carbon Plate', activity: 'Racing' },
       { brand: 'HOKA', name: 'Tecton X 3', price: 225, mensSizes: ['8','8.5','9','9.5','10','10.5','11','12'], womensSizes: ['6','6.5','7','7.5','8','8.5','9','10'], gender: 'unisex', plate: 'Carbon Plate', activity: 'Trail Running' },
+      // Clothing
+      { brand: 'Nike', name: 'Dri-FIT Rise 365 Tee', price: 55, type: 'clothing', clothingType: 'Tops', clothingSizes: ['S','M','L','XL'], clothingGender: "Men's" },
+      { brand: 'Nike', name: 'Swoosh Medium Support Bra', price: 45, type: 'clothing', clothingType: 'Tops', clothingSizes: ['XS','S','M','L'], clothingGender: "Women's" },
+      { brand: 'On', name: 'Lightweight Shorts', price: 70, type: 'clothing', clothingType: 'Shorts', clothingSizes: ['S','M','L','XL'], clothingGender: "Men's" },
+      { brand: 'HOKA', name: 'Performance Half Tight', price: 58, type: 'clothing', clothingType: 'Tights', clothingSizes: ['XS','S','M','L','XL'], clothingGender: "Women's" },
+      { brand: 'Brooks', name: 'Canopy Jacket', price: 120, type: 'clothing', clothingType: 'Jackets', clothingSizes: ['S','M','L','XL','XXL'], clothingGender: "Men's" },
+      { brand: 'Saucony', name: 'Solstice Tight', price: 85, type: 'clothing', clothingType: 'Tights', clothingSizes: ['XS','S','M','L'], clothingGender: "Women's" },
+      { brand: 'New Balance', name: 'Impact Run 5" Short', price: 50, type: 'clothing', clothingType: 'Shorts', clothingSizes: ['S','M','L','XL'], clothingGender: "Unisex" },
+      { brand: 'ASICS', name: 'Ventilate Singlet', price: 40, type: 'clothing', clothingType: 'Tops', clothingSizes: ['S','M','L','XL'], clothingGender: "Men's" },
+      // Accessories
+      { brand: 'Balega', name: 'Hidden Comfort Socks', price: 18, type: 'accessories', accessoryType: 'Socks' },
+      { brand: 'Goodr', name: 'OG Sunglasses', price: 35, type: 'accessories', accessoryType: 'Hats' },
+      { brand: 'Superfeet', name: 'Run Comfort Insole', price: 55, type: 'accessories', accessoryType: 'Insoles' },
+      { brand: 'Nathan', name: 'QuickSqueeze 12oz', price: 14, type: 'accessories', accessoryType: 'Hydration' },
+      { brand: 'Salomon', name: 'Active Skin 8L Vest', price: 130, type: 'accessories', accessoryType: 'Bags' },
+      { brand: 'Stance', name: 'Run Crew Socks', price: 22, type: 'accessories', accessoryType: 'Socks' },
     ];
 
     let state = { gender: null, selectedSizes: [], activePanel: null, activeCategory: null };
@@ -889,6 +905,23 @@
         state.activeCategory = null;
       }
       updateFilters();
+    }
+
+    function getCategoryForElement(el) {
+      if (el.closest('#panel-content-shoes')) return 'shoes';
+      if (el.closest('#panel-content-clothing')) return 'clothing';
+      if (el.closest('#panel-content-accessories')) return 'accessories';
+      return null;
+    }
+
+    function clearConflictingCategories(currentCategory) {
+      if (!currentCategory || !productCategories.includes(currentCategory)) return;
+      const conflicting = productCategories.find(c => c !== currentCategory && hasCategoryFilters(c));
+      if (conflicting) {
+        clearCategoryFilters(conflicting);
+        showClearedNotice(currentCategory, conflicting);
+        state.activeCategory = currentCategory;
+      }
     }
 
     function removeNotice(panelName) {
@@ -930,15 +963,6 @@
       document.getElementById('panel-' + name).classList.add('is-open');
       state.activePanel = name;
 
-      // Auto-clear conflicting category filters
-      if (productCategories.includes(name)) {
-        const conflicting = productCategories.find(c => c !== name && hasCategoryFilters(c));
-        if (conflicting) {
-          clearCategoryFilters(conflicting);
-          showClearedNotice(name, conflicting);
-          state.activeCategory = name;
-        }
-      }
     }
 
     function selectGender(el, gender) {
@@ -951,6 +975,7 @@
         return;
       }
 
+      clearConflictingCategories('shoes');
       document.querySelectorAll('#gender-pills .facets__pill-label').forEach(p => p.classList.remove('is-active'));
       el.classList.add('is-active');
       state.gender = gender;
@@ -981,17 +1006,25 @@
     }
 
     function togglePill(el) {
+      const cat = getCategoryForElement(el);
+      clearConflictingCategories(cat);
       el.classList.toggle('is-active');
+      if (cat) state.activeCategory = cat;
       updateFilters();
     }
 
     function toggleCheckbox(el) {
+      const cat = getCategoryForElement(el);
+      clearConflictingCategories(cat);
       el.classList.toggle('is-active');
+      if (cat) state.activeCategory = cat;
       updateFilters();
     }
 
     function toggleSize(el) {
       if (el.classList.contains('is-unavailable')) return;
+      const cat = getCategoryForElement(el);
+      clearConflictingCategories(cat);
       el.classList.toggle('is-active');
       const size = el.dataset.size || el.textContent;
       if (el.classList.contains('is-active')) {
@@ -1086,7 +1119,11 @@
 
       grid.innerHTML = filtered.map((p, i) => {
         let sizeText = '';
-        if (state.gender === 'mens') {
+        if (p.type === 'clothing') {
+          sizeText = `${p.clothingGender} · ${p.clothingSizes.join(', ')}`;
+        } else if (p.type === 'accessories') {
+          sizeText = p.accessoryType;
+        } else if (state.gender === 'mens') {
           sizeText = `Men's: ${p.mensSizes.join(', ')}`;
         } else if (state.gender === 'womens') {
           sizeText = `Women's: ${p.womensSizes.join(', ')}`;
