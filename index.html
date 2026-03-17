@@ -559,7 +559,7 @@
         <!-- SHOES filter -->
         <div class="facets__item">
           <div class="facets__panel" id="panel-shoes">
-            <button class="facets__summary" onclick="togglePanel('shoes')">
+            <button type="button" class="facets__summary" onclick="togglePanel('shoes')">
               <span class="facets__label">Shoes</span>
               <span class="facets__status" id="shoes-status"></span>
               <span class="bubble" id="shoes-badge" style="display:none">0</span>
@@ -617,7 +617,7 @@
         <!-- CLOTHING filter -->
         <div class="facets__item">
           <div class="facets__panel" id="panel-clothing">
-            <button class="facets__summary" onclick="togglePanel('clothing')">
+            <button type="button" class="facets__summary" onclick="togglePanel('clothing')">
               <span class="facets__label">Clothing</span>
               <svg class="icon-caret" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 1 5 5 9 1"></polyline></svg>
             </button>
@@ -654,7 +654,7 @@
         <!-- ACCESSORIES filter -->
         <div class="facets__item">
           <div class="facets__panel" id="panel-accessories">
-            <button class="facets__summary" onclick="togglePanel('accessories')">
+            <button type="button" class="facets__summary" onclick="togglePanel('accessories')">
               <span class="facets__label">Accessories</span>
               <svg class="icon-caret" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 1 5 5 9 1"></polyline></svg>
             </button>
@@ -674,7 +674,7 @@
         <!-- BRAND filter -->
         <div class="facets__item">
           <div class="facets__panel" id="panel-brand">
-            <button class="facets__summary" onclick="togglePanel('brand')">
+            <button type="button" class="facets__summary" onclick="togglePanel('brand')">
               <span class="facets__label">Brand</span>
               <svg class="icon-caret" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 1 5 5 9 1"></polyline></svg>
             </button>
@@ -697,7 +697,7 @@
         <!-- IN-STORE AVAILABILITY filter -->
         <div class="facets__item">
           <div class="facets__panel" id="panel-availability">
-            <button class="facets__summary" onclick="togglePanel('availability')">
+            <button type="button" class="facets__summary" onclick="togglePanel('availability')">
               <span class="facets__label">In-Store Availability</span>
               <svg class="icon-caret" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 1 5 5 9 1"></polyline></svg>
             </button>
@@ -929,7 +929,9 @@
 
     // Close on outside click
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.facets__item') && state.activePanel) {
+      // Don't close if clicking inside a filter item or active filter pills
+      if (e.target.closest('.facets__item') || e.target.closest('.filter-remove-buttons')) return;
+      if (state.activePanel) {
         document.getElementById('panel-' + state.activePanel).classList.remove('is-open');
         state.activePanel = null;
       }
